@@ -46,6 +46,10 @@ services:
     ports:
       - "7070:7070"
 
+  postgres_to_snowflake:
+    <<: *service-base
+    command: python src/postgres_to_snowflake.py
+
   # Not a deployed task, here for debugging your Docker build.
   shell:
     <<: *service-base

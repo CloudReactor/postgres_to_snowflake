@@ -118,6 +118,36 @@ task_name_to_config:
     env:
       <<: *default_task_env
       TEMP_FILE_DIR: "/home/appuser/scratch"
+  postgres_to_snowflake:
+    <<: *default_task_config
+    description: "Extract data from postgres, upload to Snowflake"
+    # run at 9:05pm UTC each day
+    schedule: cron(5 21 * * ? *)
+    command: "python src/postgres_to_snowflake.py"
+    # ecs:
+    #   <<: *default_task_ecs
+    #   extra_task_definition_properties:
+    #     This assumes one secrets object for postrges, and one for Snowflake.
+    #     For example, the postgres secrets object would look something this:
+    #     {"username": "myuser", "password": "secretpassword"...}
+    #     secrets:
+    #       - name: PG_DB_NAME
+    #         valueFrom: "arn:aws:ssm:<region>:<aws_account_id>:project/postgres:dbname"
+    #       - name: PG_DB_USER
+    #         valueFrom: "arn:aws:ssm:<region>:<aws_account_id>:project/postgres:username"
+    #       - name: PG_DB_PASSWORD
+    #         valueFrom: "arn:aws:ssm:<region>:<aws_account_id>:project/postgres:password"
+    #       - name: PG_DB_HOST
+    #         valueFrom: "arn:aws:ssm:<region>:<aws_account_id>:project/postgres:host"
+    #       - name: PG_DB_PORT
+    #         valueFrom: "arn:aws:ssm:<region>:<aws_account_id>:project/postgres:port"
+    #       - name: SNOWFLAKE_USER
+    #         valueFrom: "arn:aws:ssm:<region>:<aws_account_id>:project/snowflake:user"
+    #       - name: SNOWFLAKE_PASSWORD
+    #         valueFrom: "arn:aws:ssm:<region>:<aws_account_id>:project/snowflake:password"
+    #       - name: SNOWFLAKE_ACCOUNT
+    #         valueFrom: "arn:aws:ssm:<region>:<aws_account_id>:project/snowflake:account"
+
 # Uncomment to enable web server -- requires an IP target group and
 # load balancer setup in AWS
 #  web_server:
