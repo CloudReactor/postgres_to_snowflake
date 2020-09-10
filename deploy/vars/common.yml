@@ -124,7 +124,7 @@ task_name_to_config:
     command: "python src/postgres_to_snowflake.py"
     # ecs:
     #   <<: *default_task_ecs
-    #   extra_task_definition_properties:
+    #   extra_main_container_properties:
     #     This assumes one secrets object for postrges, and one for Snowflake.
     #     For example, the postgres secrets object would look something this:
     #     {"username": "myuser", "password": "secretpassword"...}
