@@ -121,8 +121,6 @@ task_name_to_config:
   postgres_to_snowflake:
     <<: *default_task_config
     description: "Extract data from postgres, upload to Snowflake"
-    # run at 9:05pm UTC each day
-    schedule: cron(5 21 * * ? *)
     command: "python src/postgres_to_snowflake.py"
     # ecs:
     #   <<: *default_task_ecs
