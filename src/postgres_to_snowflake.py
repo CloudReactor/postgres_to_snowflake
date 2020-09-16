@@ -10,12 +10,12 @@ from typing import Any, Dict, Optional, Tuple
 
 import csv
 import gzip
+import json
 import logging
 import os
 from pathlib import Path
 from urllib.parse import quote
 import shutil
-
 # Load the .env file (or .env.dev in development) into environment variables
 from dotenv import load_dotenv
 
