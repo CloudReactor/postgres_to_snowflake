@@ -136,20 +136,26 @@
                     "name" : "PROC_WRAPPER_API_BASE_URL",
                     "value" : {{ cloudreactor.base_url | to_json }}
                 },
+                {# Uncomment if you want to store the API key in the task definition
+                   instead of Secrets Manager
                 {
                     "name" : "PROC_WRAPPER_API_KEY",
                     "value" : {{ cloudreactor.api_key | to_json }}
                 },
+                #}
                 {
                     "name" : "PROC_WRAPPER_API_HEARTBEAT_INTERVAL_SECONDS",
                     "value" : "{{ wrapper.heartbeat_interval_seconds | default(300) }}"
                 },
+                {# Uncomment if you want to store the Rollbar access token in the task definition
+                   instead of Secrets Manager
                 {% if wrapper.rollbar_access_token is defined %}
                 {
                     "name" : "PROC_WRAPPER_ROLLBAR_ACCESS_TOKEN",
                     "value" : {{ wrapper.rollbar_access_token | to_json }}
                 },
                 {% endif %}
+                #}
                 {% if wrapper.status_update_interval_seconds is defined %}
                 {
                     "name" : "PROC_WRAPPER_STATUS_UPDATE_INTERVAL_SECONDS",

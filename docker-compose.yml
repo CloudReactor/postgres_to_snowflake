@@ -21,26 +21,18 @@ x-dev-base: &dev-base
     - ./deploy/files/.env.dev:/home/appuser/.env
     - ./mypy.ini:/home/appuser/mypy.ini
 
-x-pip-compile-base: &pip-compile-base
-  image: cloudreactor-pip-tools
-  build:
-    context: ./
-    dockerfile: tools/pip-tools/Dockerfile
-  volumes:
-    - ./:/work
-
 services:
   task_1:
     <<: *service-base
-    command: python src/task_1.py
+    entrypoint: python src/task_1.py
 
   file_io:
     <<: *service-base
-    command: python src/file_io.py
+    entrypoint: python src/file_io.py
 
   web_server:
     <<: *service-base
-    command: flask run -p 7070 --host=0.0.0.0
+    entrypoint: flask run -p 7070 --host=0.0.0.0
     environment:
       FLASK_APP: "src/web_server.py"
     ports:
@@ -53,37 +45,30 @@ services:
   # Not a deployed task, here for debugging your Docker build.
   shell:
     <<: *service-base
-    command: bash
+    entrypoint: bash
 
   pytest:
     <<: *dev-base
 
   pytest-cov:
     <<: *dev-base
-    command: pytest --cov=src
+    entrypoint: pytest --cov=src
 
   pylint:
     <<: *dev-base
-    command: pylint --rcfile=src/.pylintrc src
+    entrypoint: pylint --rcfile=src/.pylintrc src
 
   mypy:
     <<: *dev-base
-    command: mypy src
+    entrypoint: mypy src
 
   safety:
     <<: *dev-base
-    command: safety check
+    entrypoint: safety check
 
   dev-shell:
     <<: *dev-base
-    command: bash
-
-  pip-compile:
-    <<: *pip-compile-base
-
-  pip-compile-dev:
-    <<: *pip-compile-base
-    command: dev-requirements.in --output-file dev-requirements.txt
+    entrypoint: bash
 
   # Check your Dockerfile against best-practices:
   # See https://github.com/hadolint/hadolint
@@ -92,4 +77,4 @@ services:
     volumes:
       - ./Dockerfile:/mnt/Dockerfile
       - ./.hadolint.yaml:/mnt/.hadolint.yaml
-    command: /bin/hadolint --config /mnt/.hadolint.yaml /mnt/Dockerfile
+    entrypoint: /bin/hadolint --config /mnt/.hadolint.yaml /mnt/Dockerfile

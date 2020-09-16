@@ -26,7 +26,7 @@ deploy/docker_deploy.*.env
 deploy/files/.env.*
 !deploy/files/.env.example
 
-# Note: for development, we assume this file is unencrypted so 
+# Note: for development, we assume this file is unencrypted so
 # that changes will be picked up immediately without decryption.
 !deploy/files/.env.dev
 
@@ -39,3 +39,4 @@ deploy/vars/*.yml
 
 # Editor files
 .vscode/
+src/task_1.py

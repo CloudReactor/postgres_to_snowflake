@@ -29,6 +29,8 @@ since a local socket is used, the vast majority of status updates will
 be send to CloudReactor.
 """
 
+from typing import Any, Dict, Optional
+
 import json
 import logging
 import os
@@ -49,33 +51,51 @@ class StatusUpdater:
 
     DEFAULT_STATUS_UPDATE_PORT = 2373
 
-    def __init__(self):
+    def __init__(self, enabled: Optional[bool] = None,
+            port: Optional[int] = None,
+            logger: Optional[logging.Logger] = None):
         """
-        Create a new instance which reads its configuration from environment
-        variables:
+        Create a new instance.
 
-        PROC_WRAPPER_ENABLE_STATUS_UPDATE_LISTENER: set to FALSE if disabling
-        status updates.
+        enabled == False means this instance will not send updates to the
+        wrapper script (which would send them to CloudReactor).
+        If not specified, it will be read from the the
+        environment variable PROC_WRAPPER_ENABLE_STATUS_UPDATE_LISTENER.
+        Set it to TRUE to enable status updates.
 
-        PROC_WRAPPER_STATUS_UPDATE_SOCKET_PORT: set to the port used to communicate
-        with the wrapper script. By default this is 2373.
+        port is the number of the UDP port used to communicate with the wrapper script.
+        If not specified, it will be read from the
+        environment variable PROC_WRAPPER_STATUS_UPDATE_SOCKET_PORT, and if
+        that is not present it will use port 2373.
+
+        logger is an optional logger that will sent info() when last_status_message
+        is specified in send_update().
+
         """
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
+        self.internal_logger = logging.getLogger(__name__)
+        self.internal_logger.addHandler(logging.NullHandler())
+        self.external_logger = logger
 
         self.socket = None
-        self.port = None
-        self.enabled = os.environ.get('PROC_WRAPPER_ENABLE_STATUS_UPDATE_LISTENER',
-                                      'FALSE').upper() == 'TRUE'
+
+        if port is None:
+            self.port = int(os.environ.get('PROC_WRAPPER_STATUS_UPDATE_SOCKET_PORT') or
+                    StatusUpdater.DEFAULT_STATUS_UPDATE_PORT)
+        else:
+            self.port = port
+
+        if enabled is None:
+            self.enabled = os.environ.get(
+                  'PROC_WRAPPER_ENABLE_STATUS_UPDATE_LISTENER',
+                  'FALSE').upper() == 'TRUE'
+        else:
+            self.enabled = enabled
 
         if self.enabled:
-            self._logger.info('StatusUpdater is enabled')
+            self.internal_logger.info('StatusUpdater is enabled')
         else:
-            self._logger.info('StatusUpdater is disabled')
+            self.internal_logger.info('StatusUpdater is disabled')
             return
-
-        self.port = int(os.environ.get('PROC_WRAPPER_STATUS_UPDATE_SOCKET_PORT') or
-                        StatusUpdater.DEFAULT_STATUS_UPDATE_PORT)
 
         atexit.register(_exit_handler, self)
 
@@ -87,15 +107,27 @@ class StatusUpdater:
         """Implement exit point for python with statement."""
         self.shutdown()
 
-    def send_update(self, success_count=None, error_count=None, skipped_count=None,
-                    expected_count=None, last_status_message=None, extra_props=None):
+    def send_update(self, success_count: Optional[int] = None,
+            error_count: Optional[int] = None,
+            skipped_count: Optional[int] = None,
+            expected_count: Optional[int] = None,
+            last_status_message: Optional[int] = None,
+            extra_props: Optional[Dict[str, Any]] = None,
+            logger: Optional[logging.Logger] = None):
         """
         Send an update to the wrapping script, if this instance is enabled.
+        If logger is specified, last_status_message will logged there if present.
+        Otherwise, if logger was specified in __init__() it will use that logger.
         """
+
+        resolved_logger = logger or self.external_logger
+        if resolved_logger and last_status_message:
+            resolved_logger.info(last_status_message)
+
         if not self.enabled:
             return
 
-        status_hash = {}
+        status_hash: Dict[str, Any] = {}
 
         if success_count is not None:
             status_hash['success_count'] = success_count
@@ -120,18 +152,18 @@ class StatusUpdater:
         try:
             self.reuse_or_create_socket().sendto(message, ('127.0.0.1', self.port))
         except Exception:
-            self._logger.debug("Can't send status update, resetting socket")
-            self.socket = None
+            self.internal_logger.debug("Can't send status update, resetting socket")
+            self.shutdown()
 
     def shutdown(self):
         """
         Shut this instance down, reclaiming the status update socket.
         """
         if self.socket:
-            self._logger.info('Closing status update socket ...')
+            self.internal_logger.info('Closing status update socket ...')
             try:
                 self.socket.close()
-                self._logger.info('Done closing status update socket.')
+                self.internal_logger.info('Done closing status update socket.')
             finally:
                 self.socket = None
 

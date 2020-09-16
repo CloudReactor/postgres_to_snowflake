@@ -30,13 +30,13 @@
       - version
       - build
       - upload
-      - create_tasks 
-    
+      - create_tasks
+
   - debug: msg="Process version signature is {{ process_version_signature }}"
-    tags: 
+    tags:
       - version
       - build
-      - upload 
+      - upload
       - create_tasks
 
   - name: Get configuration from CloudReactor Run Environment
@@ -51,18 +51,18 @@
       - upload
       - create_tasks
 
-  - debug:
-      msg: "Runtime Environment is {{ run_environment }}, UUID = {{ run_environment.uuid }}"
-      verbosity: 1
-
   - name: Ensure Runtime Environment is found
     assert:
       that:
         - run_environment_result.json.count == 1
       fail_msg: "Run Environment '{{ run_environment_name }}' not found in CloudReactor, please create it."
     tags:
-      - upload       
+      - upload
       - create_tasks
+
+  - debug:
+      msg: "Runtime Environment is {{ run_environment }}, UUID = {{ run_environment.uuid }}"
+      verbosity: 1
 
   - name: Set default AWS configuration from Run Environment
     set_fact:
@@ -70,7 +70,7 @@
         account_id: "{{ run_environment.aws_account_id }}"
         region: "{{ run_environment.aws_default_region }}"
         ecs:
-          cluster_name: "{{ run_environment_exec_method.default_cluster_arn }}"        
+          cluster_name: "{{ run_environment_exec_method.default_cluster_arn }}"
           execution_role_arn: "{{ run_environment_exec_method.default_execution_role }}"
           task:
             network:
@@ -79,7 +79,7 @@
               assign_public_ip: "{{ run_environment_exec_method.default_assign_public_ip }}"
             role_arn: "{{ run_environment_exec_method.task_execution_role | default(run_environment_exec_method.default_execution_role) }}"
     tags:
-      - upload       
+      - upload
       - create_tasks
 
   - debug:

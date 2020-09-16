@@ -3,13 +3,16 @@ FROM cloudreactor-ecs-quickstart
 USER root
 WORKDIR /usr/src/app
 
-COPY ./dev-requirements.txt .
+COPY ./dev-requirements.in .
 
-RUN pip install --no-cache-dir -r requirements.txt -r dev-requirements.txt
+RUN pip-compile --allow-unsafe --generate-hashes \
+  dev-requirements.in --output-file dev-requirements.txt
+
+RUN pip install --no-input --no-cache-dir -r requirements.txt -r dev-requirements.txt
 
 USER appuser
 WORKDIR /home/appuser
 
 COPY ./mypy.ini .
 
-CMD ["pytest"]
+ENTRYPOINT ["pytest"]
