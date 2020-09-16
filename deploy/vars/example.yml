@@ -103,6 +103,8 @@ default_env_task_config: &default_env_task_config
 # Be sure that any tasks you add here inherit the properties in default_env_task_config,
 # so it will apply to each task.
 task_name_to_env_config:
+  postgres_to_snowflake:
+    <<: *default_env_task_config
   task_1:
     <<: *default_env_task_config
     schedule: cron(9 0 * * ? *)
