@@ -150,11 +150,14 @@ def make_pg_connection(updater: StatusUpdater):
     """
     Returns a connection to a PostgreSQL database
     """
-    db_name = os.environ.get('PG_DB_NAME')
-    db_user = os.environ.get('PG_DB_USER')
-    db_password = os.environ.get('PG_DB_PASSWORD')
-    db_host = os.environ.get('PG_DB_HOST')
-    db_port = int(os.environ.get('PG_DB_PORT', '5432'))
+    postgres_secrets = os.environ.get('POSTGRES_SECRETS')
+    # convert secrets string to dictionary
+    pg_secrets_dict = json.loads(postgres_secrets)
+    db_name = pg_secrets_dict['dbname']
+    db_user = pg_secrets_dict['username']
+    db_password = pg_secrets_dict['password']
+    db_host = pg_secrets_dict['host']
+    db_port = int(pg_secrets_dict.get('port', '5432'))
 
     connection = None
     try:
@@ -183,9 +186,12 @@ def make_snowflake_connection(updater: StatusUpdater):
     """
     Returns a connection to Snowflake account
     """
-    user = os.environ.get('SNOWFLAKE_USER')
-    password = os.environ.get('SNOWFLAKE_PASSWORD')
-    account = os.environ.get('SNOWFLAKE_ACCOUNT')
+    snowflake_secrets = os.environ.get('SNOWFLAKE_SECRETS')
+    # convert secrets string to dictionary
+    snowflake_secrets_dict = json.loads(snowflake_secrets)
+    user = snowflake_secrets_dict['user']
+    password = snowflake_secrets_dict['password']
+    account = snowflake_secrets_dict['account']
 
     snowflake.connector.paramstyle = 'qmark'
 

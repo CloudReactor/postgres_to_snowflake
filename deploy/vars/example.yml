@@ -65,7 +65,11 @@ default_env_task_config: &default_env_task_config
       # need in your task code.
       secrets: &default_env_secrets
         - name: PROC_WRAPPER_API_KEY
-          valueFrom: "arn:aws:secretsmanager:[aws_region]:[aws_account_id]:secret:CloudReactor/example/common/cloudreactor_api_key-xxx"
+          valueFrom: "arn:aws:secretsmanager:[aws_region]:[aws_account_id]:secret:CloudReactor/[runenv_name]/common/cloudreactor_api_key-xxx"
+        - name: POSTGRES_SECRETS
+          valueFrom: "arn:aws:secretsmanager:[aws_region]:[aws_account_id]:secret:CloudReactor/[runenv_name]/common/snowflake-xxx"
+        - name: SNOWFLAKE_SECRETS
+          valueFrom: "arn:aws:secretsmanager:[aws_region]:[aws_account_id]:secret:CloudReactor/[runenv_name]/common/snowflake-xxx"
 
         # Optional Rollbar token used by the wrapper script
         #- name: PROC_WRAPPER_ROLLBAR_ACCESS_TOKEN
