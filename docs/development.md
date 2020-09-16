@@ -46,23 +46,16 @@ which the Dockerfile uses as a list of resolved dependencies for
 To adding a python library to your runtime dependencies, follow these steps:
 
 1. Add the library name to `requirements.in`
-2. Run:
-    `docker-compose run --rm pip-compile`
-This will update the file `requirements.txt`.
-3. Rebuild your task code:
+2. Rebuild your task code:
 
     docker-compose build task_1
 
 Now you can start using the dependency in your code.
-4. You should also rebuild the development requirements so that the
+3. You should also rebuild the development requirements so that the
 development tools are aware of your libraries. For example, pylint
-will warn you about bad import statements unless the developement Docker image
-has libraries that the main Docker image has. First re-compile the
-development requirements:
-
-    docker-compose run --rm pip-compile-dev
-
-Then rebuild the development image so that it has these requirements:
+will warn you about bad import statements unless the development Docker image
+has the libraries that the main Docker image has.
+To rebuild the development image so that it has these requirements, run:
 
     docker-compose build pylint
 
@@ -74,24 +67,17 @@ development image (e.g. mypy).
 Development dependencies are libraries used during development and
 testing but not used when the tasks are deployed. For example, `pytest`
 is a development dependency because it is needed to run tests during
-development, but not needed to run the actual tasks. Development dependencies
-are listed in `dev-requirements.txt` and added to the Docker image built from `Dockerfile-dev`.
+development, but not needed to run the actual tasks.
 
-To adding a python library to your development dependencies, follow these
-steps:
+To add a python library to your development dependencies,
 
-1. Add the library name to `dev-requirements.in`
-2. Run:
+1. Add the library name to `dev-requirements.in`:
+2. Rebuild the development image:
 
-    docker-compose run --rm pip-compile-dev
+    docker-compose build pylint
 
-This will update the file `dev-requirements.txt`.
-3. If necessary, add another service to `docker-compose.yml` that runs
-the development task. Also build your development task image:
-
-    docker-compose build <task name>
-
-where `<task_name>` is the name of the service you added in step 3.
+`pylint` was used above but it could be any Docker Compose service that uses the
+development image (e.g. mypy).
 
 Now you can start using the development dependency.
 
@@ -140,6 +126,13 @@ To get a bash shell in the container that has development dependencies installed
     docker-compose run --rm dev-shell
 
 You can use this shell to run pytest, pylint, etc. with different options.
+
+# Dockerfile linting
+
+Use [hadolint](https://github.com/hadolint/hadolint) to ensure your Dockerfile follows
+best practices:
+
+    docker-compose run --rm hadolint
 
 ## Continuous Integration using GitHub Actions
 

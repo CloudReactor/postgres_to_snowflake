@@ -35,7 +35,7 @@ default_task_config: &default_task_config
     # extra_main_container_properties
     #   secrets:
     #     - name: environment_variable_name
-    #       valueFrom: "arn:aws:ssm:region:aws_account_id:parameter/parameter_name"
+    #       valueFrom: arn:aws:secretsmanager:[aws_region]:[aws_account_id]:secret:[secret_name]
 
     # Uncomment to add properties to the top-level ECS task definition:
     # extra_task_definition_properties:

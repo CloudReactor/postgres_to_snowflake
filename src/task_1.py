@@ -30,16 +30,21 @@ def main():
     Iterate over a range of integers, sending status updates periodically.
     """
 
+    # Load variables from the .env file into the environment. This can be used
+    # to configure settings during development, as deploy/files/.env.dev mapped
+    # to the .env file by Docker Compose. When deployed to ECS, .env.[deployment name]
+    # will be loaded instead.
     load_dotenv()
 
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)s: %(message)s")
+    logger = logging.getLogger(__name__)
 
     signal.signal(signal.SIGTERM, signal_handler)
 
     num_rows = int(os.environ.get('NUM_ROWS', '5'))
     row_to_fail_at = int(os.environ.get('ROW_TO_FAIL_AT', '-1'))
 
-    with StatusUpdater() as updater:
+    with StatusUpdater(logger=logger) as updater:
         start_message = make_start_message('I am')
         updater.send_update(last_status_message=start_message,
                             expected_count=random.randrange(5, 15))

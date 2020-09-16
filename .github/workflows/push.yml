@@ -4,7 +4,7 @@ on:
     branches: [ "**" ]
     paths-ignore:
       - '*.md'
-      - 'docs/**'    
+      - 'docs/**'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,4 +34,3 @@ jobs:
         PYTHONPATH: src
     - name: Print final message
       run: "echo Complete"
-
